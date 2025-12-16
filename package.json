@@ -1,0 +1,15 @@
+{
+    "name": "ainjekta",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Ainjekta monorepo - Frontend and Backend",
+    "scripts": {
+        "01.run": "concurrently \"npm run 01.dev --prefix backend\" \"npm run 01.dev --prefix frontend\""
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}
