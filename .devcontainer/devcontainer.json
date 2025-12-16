@@ -2,6 +2,10 @@
   "name": "Ainjekta Dev Environment",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
   "features": {},
+    "mounts": [
+    "source=${localEnv:HOME}/.docker/desktop/docker.sock,target=/var/run/docker-host.sock,type=bind",
+    "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached"
+  ],
   "customizations": {
     "vscode": {
       "extensions": [
@@ -10,7 +14,10 @@
       ]
     }
   },
-  "forwardPorts": [3000, 5173],
-  "postCreateCommand": "npm install && npm run install:all",
+  "forwardPorts": [
+    3000,
+    5173
+  ],
+  "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
   "remoteUser": "node"
 }
