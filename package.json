@@ -4,7 +4,8 @@
     "private": true,
     "description": "Ainjekta monorepo - Frontend and Backend",
     "scripts": {
-        "01.run": "concurrently \"npm run 01.dev --prefix backend\" \"npm run 01.dev --prefix frontend\""
+        "01.run": "concurrently \"npm run 01.dev --prefix backend\" \"npm run 01.dev --prefix frontend\"",
+        "02.attack": "npm run 02.test --prefix backend"
     },
     "devDependencies": {
         "concurrently": "^8.2.2"

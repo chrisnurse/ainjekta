@@ -75,7 +75,8 @@ const applyVulnerable = () => {
     user: userPrompt,
     model: fullScenario.value.model,
     variations: variations.value,
-    selectedVariation: selectedVariation.value
+    selectedVariation: selectedVariation.value,
+    toolMode: 'vulnerable'
   })
 }
 
@@ -87,7 +88,8 @@ const applyDefense = () => {
   emit('apply-vulnerable', {
     system: systemPrompt,
     user: userPrompt,
-    model: fullScenario.value.model
+    model: fullScenario.value.model,
+    toolMode: 'defended'
   })
 }
 

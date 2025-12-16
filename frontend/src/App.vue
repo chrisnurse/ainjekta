@@ -16,6 +16,7 @@ const showScenarioViewer = ref(false)
 const variations = ref([])
 const selectedVariation = ref(0)
 const mainPrompt = ref('')
+const toolMode = ref(null) // null | 'vulnerable' | 'defended'
 
 const models = ref([])
 const selectedModel = ref('gpt-3.5-turbo')
@@ -43,7 +44,8 @@ const sendMessage = async () => {
       body: JSON.stringify({
         systemPrompt: systemPrompt.value,
         messages: messages.value,
-        model: selectedModel.value
+        model: selectedModel.value,
+        toolMode: toolMode.value
       })
     })
 
@@ -89,6 +91,7 @@ const applyScenarioPrompts = (data) => {
   if (data.model) {
     selectedModel.value = data.model
   }
+  toolMode.value = data.toolMode || null
   variations.value = data.variations || []
   selectedVariation.value = Number.isInteger(data.selectedVariation) ? data.selectedVariation : 0
   showScenarioViewer.value = false
