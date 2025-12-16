@@ -65,32 +65,33 @@ watch(() => props.scenario.id, () => {
   loadScenario()
 })
 
-const applyVulnerable = () => {
+const buildScenarioPayload = (mode) => {
   const sections = fullScenario.value.sections
-  const systemPrompt = extractText(sections.demonstrated_vulnerability, 'system_prompt')
-  const userPrompt = extractText(sections.demonstrated_vulnerability, 'user_prompt')
-  
-  emit('apply-vulnerable', {
-    system: systemPrompt,
-    user: userPrompt,
+
+  const vulnerableSystem = extractText(sections.demonstrated_vulnerability, 'system_prompt')
+  const vulnerableUser = extractText(sections.demonstrated_vulnerability, 'user_prompt')
+
+  const defendedSystem = extractText(sections.defence, 'system_prompt')
+  const defendedUser = extractText(sections.defence, 'user_prompt')
+
+  return {
+    vulnerableSystem,
+    vulnerableUser,
+    defendedSystem,
+    defendedUser,
     model: fullScenario.value.model,
     variations: variations.value,
     selectedVariation: selectedVariation.value,
-    toolMode: 'vulnerable'
-  })
+    toolMode: mode
+  }
+}
+
+const applyVulnerable = () => {
+  emit('apply-vulnerable', buildScenarioPayload('vulnerable'))
 }
 
 const applyDefense = () => {
-  const sections = fullScenario.value.sections
-  const systemPrompt = extractText(sections.defence, 'system_prompt')
-  const userPrompt = extractText(sections.defence, 'user_prompt')
-  
-  emit('apply-vulnerable', {
-    system: systemPrompt,
-    user: userPrompt,
-    model: fullScenario.value.model,
-    toolMode: 'defended'
-  })
+  emit('apply-vulnerable', buildScenarioPayload('defended'))
 }
 
 const getSection = (sectionName) => {

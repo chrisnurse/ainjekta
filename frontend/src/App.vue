@@ -15,8 +15,13 @@ const scenarios = ref([])
 const showScenarioViewer = ref(false)
 const variations = ref([])
 const selectedVariation = ref(0)
-const mainPrompt = ref('')
 const toolMode = ref(null) // null | 'vulnerable' | 'defended'
+
+const scenarioActive = ref(false)
+const scenarioVulnerableSystem = ref('')
+const scenarioVulnerableUserMain = ref('')
+const scenarioDefendedSystem = ref('')
+const scenarioDefendedUser = ref('')
 
 const models = ref([])
 const selectedModel = ref('gpt-3.5-turbo')
@@ -74,6 +79,35 @@ const resetChat = () => {
   error.value = ''
 }
 
+const getSelectedAttackPrompt = () => {
+  if (selectedVariation.value === 0) return scenarioVulnerableUserMain.value
+  const variation = variations.value[selectedVariation.value - 1]
+  return variation?.code || scenarioVulnerableUserMain.value
+}
+
+const preloadScenarioPromptForMode = (mode) => {
+  if (!scenarioActive.value) return
+
+  if (mode === 'vulnerable') {
+    systemPrompt.value = scenarioVulnerableSystem.value
+    userInput.value = getSelectedAttackPrompt()
+    return
+  }
+
+  if (mode === 'defended') {
+    systemPrompt.value = scenarioDefendedSystem.value
+    userInput.value = scenarioDefendedUser.value?.trim()
+      ? scenarioDefendedUser.value
+      : getSelectedAttackPrompt()
+  }
+}
+
+const setToolMode = (mode) => {
+  toolMode.value = mode
+  resetChat()
+  preloadScenarioPromptForMode(mode)
+}
+
 const selectScenario = (scenario) => {
   selectedScenario.value = scenario
   showScenarioViewer.value = true
@@ -82,35 +116,26 @@ const selectScenario = (scenario) => {
 const applyScenarioPrompts = (data) => {
   resetChat()
 
-  systemPrompt.value = data.system
-  mainPrompt.value = data.user
-  messages.value = [{
-    role: 'user',
-    content: data.user
-  }]
+  scenarioActive.value = true
+  scenarioVulnerableSystem.value = data.vulnerableSystem || data.system || ''
+  scenarioVulnerableUserMain.value = data.vulnerableUser || data.user || ''
+  scenarioDefendedSystem.value = data.defendedSystem || ''
+  scenarioDefendedUser.value = data.defendedUser || ''
+
   if (data.model) {
     selectedModel.value = data.model
   }
-  toolMode.value = data.toolMode || null
+
   variations.value = data.variations || []
   selectedVariation.value = Number.isInteger(data.selectedVariation) ? data.selectedVariation : 0
   showScenarioViewer.value = false
 
-  // If a specific variation was selected in the viewer, apply it immediately.
-  if (selectedVariation.value !== 0) {
-    updateVariation(selectedVariation.value)
-  }
+  setToolMode(data.toolMode || 'vulnerable')
 }
 
 const updateVariation = (variationIndex) => {
   selectedVariation.value = variationIndex
-  if (messages.value.length > 0) {
-    if (variationIndex === 0) {
-      messages.value[0].content = mainPrompt.value
-    } else if (variations.value[variationIndex - 1]) {
-      messages.value[0].content = variations.value[variationIndex - 1].code
-    }
-  }
+  preloadScenarioPromptForMode(toolMode.value)
 }
 
 const loadScenarios = async () => {
@@ -174,12 +199,15 @@ onMounted(() => {
           :selected-model="selectedModel"
           :variations="variations"
           :selected-variation="selectedVariation"
+          :tool-mode="toolMode"
+          :scenario-active="scenarioActive"
           @update:user-input="userInput = $event"
           @send-message="sendMessage"
           @reset-chat="resetChat"
           @update:system-prompt="systemPrompt = $event"
           @update:selected-model="selectedModel = $event"
           @update:selected-variation="updateVariation"
+          @update:tool-mode="setToolMode"
         />
       </div>
     </div>

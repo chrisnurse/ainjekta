@@ -35,10 +35,18 @@ defineProps({
   selectedVariation: {
     type: Number,
     default: 0
+  },
+  toolMode: {
+    type: String,
+    default: null
+  },
+  scenarioActive: {
+    type: Boolean,
+    default: false
   }
 })
 
-defineEmits(['update:user-input', 'send-message', 'reset-chat', 'update:system-prompt', 'update:selected-model', 'update:selected-variation'])
+defineEmits(['update:user-input', 'send-message', 'reset-chat', 'update:system-prompt', 'update:selected-model', 'update:selected-variation', 'update:tool-mode'])
 </script>
 
 <template>
@@ -58,6 +66,28 @@ defineEmits(['update:user-input', 'send-message', 'reset-chat', 'update:system-p
       </div>
 
       <div class="controls-row">
+        <div v-if="scenarioActive" class="mode-selector-section">
+          <div class="mode-header">
+            <strong>Mode</strong>
+          </div>
+
+          <div class="mode-toggle" role="group" aria-label="Scenario mode">
+            <span class="mode-label" :class="{ active: (toolMode || 'vulnerable') === 'vulnerable' }">Vulnerable</span>
+
+            <label class="switch">
+              <input
+                type="checkbox"
+                :checked="(toolMode || 'vulnerable') === 'defended'"
+                @change="$emit('update:tool-mode', $event.target.checked ? 'defended' : 'vulnerable')"
+                aria-label="Toggle defended mode"
+              />
+              <span class="slider"></span>
+            </label>
+
+            <span class="mode-label" :class="{ active: (toolMode || 'vulnerable') === 'defended' }">Defended</span>
+          </div>
+        </div>
+
         <div class="model-selector-section">
           <label for="model-select">
             <strong>Model</strong>
@@ -171,6 +201,89 @@ defineEmits(['update:user-input', 'send-message', 'reset-chat', 'update:system-p
 .controls-row {
   display: flex;
   gap: 1rem;
+}
+
+.mode-selector-section {
+  flex: 0.8;
+  display: flex;
+  flex-direction: column;
+}
+
+.mode-header {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.mode-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  user-select: none;
+}
+
+.mode-label.active {
+  color: #2c3e50;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ddd;
+  transition: 0.2s;
+  border-radius: 999px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.2s;
+  border-radius: 50%;
+}
+
+.switch input:checked + .slider {
+  background-color: #667eea;
+}
+
+.switch input:focus + .slider {
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
 }
 
 .model-selector-section {
