@@ -24,8 +24,6 @@ const loadScenario = async () => {
     fullScenario.value = data
     parseVariations(data.sections)
     selectedVariation.value = 0
-    console.log('Loaded scenario:', data)
-    console.log('Available sections:', Object.keys(data.sections || {}))
   } catch (error) {
     console.error('Error loading scenario:', error)
   } finally {
@@ -36,24 +34,17 @@ const loadScenario = async () => {
 const parseVariations = (sections) => {
   if (!sections || !sections.variations) {
     variations.value = []
-    console.log('No variations section found')
     return
   }
-  
-  console.log('Variations section:', sections.variations)
-  
+
   const variationList = []
   let currentVariation = null
   
   sections.variations.forEach(item => {
-    console.log('Processing variation item:', item)
     if (item.type === 'text') {
       // Check if this is a variation header line like "Variation 1: Polite Override"
       const match = item.content.match(/^Variation \d+: (.+)$/)
       if (match) {
-        if (currentVariation && !currentVariation.code) {
-          currentVariation.code = ''
-        }
         currentVariation = { name: match[1], code: null }
         variationList.push(currentVariation)
       }
@@ -63,7 +54,6 @@ const parseVariations = (sections) => {
   })
   
   variations.value = variationList
-  console.log('Parsed variations:', variationList)
 }
 
 onMounted(() => {
@@ -84,7 +74,8 @@ const applyVulnerable = () => {
     system: systemPrompt,
     user: userPrompt,
     model: fullScenario.value.model,
-    variations: variations.value
+    variations: variations.value,
+    selectedVariation: selectedVariation.value
   })
 }
 
@@ -102,11 +93,7 @@ const applyDefense = () => {
 
 const getSection = (sectionName) => {
   if (!fullScenario.value || !fullScenario.value.sections) return null
-  const section = fullScenario.value.sections[sectionName] || null
-  if (section) {
-    console.log(`Section "${sectionName}":`, section)
-  }
-  return section
+  return fullScenario.value.sections[sectionName] || null
 }
 
 const findCodeBlock = (items, language) => {

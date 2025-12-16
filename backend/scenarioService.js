@@ -80,21 +80,32 @@ function parseScenarioMarkdown(content) {
         }
 
         if (line.startsWith('### ')) {
-            // For variations section, capture the header as text content
-            if (currentSection && currentSection.toLowerCase() === 'variations') {
-                const headerText = line.substring(4).trim();
-                if (currentContent.length > 0 || variationList) {
-                    if (!scenario.sections[currentSection]) {
-                        scenario.sections[currentSection] = [];
-                    }
-                    scenario.sections[currentSection].push({
-                        type: 'text',
-                        content: headerText
-                    });
-                    currentContent = [];
+            const headerText = line.substring(4).trim();
+
+            // If we were collecting plain text, flush it before starting a new subheader.
+            if (currentSection && currentContent.length > 0) {
+                if (!scenario.sections[currentSection]) {
+                    scenario.sections[currentSection] = [];
                 }
+                scenario.sections[currentSection].push({
+                    type: 'text',
+                    content: currentContent.join('\n').trim()
+                });
+                currentContent = [];
             }
-            lastHeader = line.substring(4).trim();
+
+            // Special-case: keep variation subheaders so the UI can build a dropdown.
+            if (currentSection && currentSection.toLowerCase() === 'variations') {
+                if (!scenario.sections[currentSection]) {
+                    scenario.sections[currentSection] = [];
+                }
+                scenario.sections[currentSection].push({
+                    type: 'text',
+                    content: headerText
+                });
+            }
+
+            lastHeader = headerText;
             continue;
         }
 

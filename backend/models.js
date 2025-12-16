@@ -1,6 +1,18 @@
 // Available models configuration
 export const AVAILABLE_MODELS = [
     {
+        id: 'local-vulnerable-sim',
+        name: 'Local Vulnerable Simulator',
+        description: 'Deterministic sandbox that intentionally leaks sample data',
+        maxTokens: 4096
+    },
+    {
+        id: 'local-defended-sim',
+        name: 'Local Defended Simulator',
+        description: 'Deterministic sandbox that refuses to leak sample data',
+        maxTokens: 4096
+    },
+    {
         id: 'gpt-4-turbo',
         name: 'GPT-4 Turbo',
         description: 'Most capable model, best for complex reasoning',

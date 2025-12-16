@@ -68,6 +68,7 @@ const sendMessage = async () => {
 
 const resetChat = () => {
   messages.value = []
+  userInput.value = ''
   error.value = ''
 }
 
@@ -77,6 +78,8 @@ const selectScenario = (scenario) => {
 }
 
 const applyScenarioPrompts = (data) => {
+  resetChat()
+
   systemPrompt.value = data.system
   mainPrompt.value = data.user
   messages.value = [{
@@ -87,9 +90,13 @@ const applyScenarioPrompts = (data) => {
     selectedModel.value = data.model
   }
   variations.value = data.variations || []
-  selectedVariation.value = 0
+  selectedVariation.value = Number.isInteger(data.selectedVariation) ? data.selectedVariation : 0
   showScenarioViewer.value = false
-  resetChat()
+
+  // If a specific variation was selected in the viewer, apply it immediately.
+  if (selectedVariation.value !== 0) {
+    updateVariation(selectedVariation.value)
+  }
 }
 
 const updateVariation = (variationIndex) => {

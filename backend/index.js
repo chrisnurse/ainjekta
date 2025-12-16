@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import OpenAI from 'openai';
 import { loadAllScenarios, loadScenario, getScenariosList } from './scenarioService.js';
 import { AVAILABLE_MODELS, getDefaultModel, isValidModel } from './models.js';
+import { simulateChat } from './simulator.js';
 
 dotenv.config();
 
@@ -77,6 +78,16 @@ app.post('/api/chat', async (req, res) => {
     if (!isValidModel(selectedModel)) {
       return res.status(400).json({
         error: `Invalid model: ${selectedModel}`
+      });
+    }
+
+    // Local deterministic simulators (safe “real effect” demos)
+    if (selectedModel === 'local-vulnerable-sim' || selectedModel === 'local-defended-sim') {
+      const mode = selectedModel === 'local-vulnerable-sim' ? 'vulnerable' : 'defended';
+      const result = simulateChat({ systemPrompt, messages, mode });
+      return res.json({
+        message: result.message,
+        usage: result.usage
       });
     }
 
